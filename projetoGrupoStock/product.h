@@ -11,5 +11,7 @@ void listProduct(int index, std::string **stock);
 // Adds more of an existing product
 void addQuantity(int &ID, std::string **stock, int addedQuantity);
 
+void removeQuantity(int &ID, std::string **stock, int removedQuantity);
+
 // Deletes the std::string array at ID index in stock
 void deleteProduct(int indexID, std::string **stock);

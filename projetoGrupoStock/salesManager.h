@@ -6,4 +6,6 @@
 #include "product.h"
 
 void upperCase(std::string &str);
-void sellProducts(std::string **stock, int &ID);
+std::string** sellProducts(std::string **stock, int &ID, int &clientNumber);
+
+void printReceipt(std::string **addedProducts, std::string **stock, int &receiptNumber, int &clientNumber);

@@ -37,7 +37,16 @@ void listProduct(int index, std::string **stock)
 
 void addQuantity(int &ID, std::string **stock, int addedQuantity)
 {
-    stock[ID][1] += addedQuantity;
+    int temp = std::stoi(stock[ID][1]);
+    temp += addedQuantity;
+    stock[ID][1] = std::to_string(temp);
+}
+
+void removeQuantity(int& ID, std::string** stock, int removedQuantity)
+{
+    int temp = std::stoi(stock[ID][1]);
+    temp -= removedQuantity;
+    stock[ID][1] = std::to_string(temp);
 }
 
 // We store the address in a temp pointer, we set the stock index to nullptr and then delete the allocated array
