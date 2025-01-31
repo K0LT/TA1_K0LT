@@ -1,7 +1,7 @@
 ﻿#include "stock.h"
 #include "salesManager.h"
+#include "utilities.h"
 #include <iostream>
-#include <limits>
 
 std::string* createStock(int size) {
     return new std::string[size * 4]();

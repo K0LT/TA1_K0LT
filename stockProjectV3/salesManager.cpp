@@ -1,19 +1,15 @@
 ﻿// salesManager.cpp - Sales processing implementation
 #include "salesManager.h"
 #include "stock.h"
+#include "utilities.h"
 
 #include <iostream>
-#include <cctype>
 #include <iomanip>
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
 #include <cstring>
 
-// Converts string to uppercase
-void upperCase(std::string& str) {
-    for (char& c : str) c = std::toupper(c);
-}
 
 // Sell products
 std::string* sellProducts(std::string* stock, int& ID, int& clientNumber, int& productCounter) {
