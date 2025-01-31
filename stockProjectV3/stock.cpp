@@ -87,11 +87,9 @@ void listStock(std::string*& stock, int size, std::string* transactions, int pro
 }
 
 void addStockToExistingProduct(std::string* stock, int totalProducts) {
-    int productID, addedQuantity;
-    std::cout << "\nEnter product ID to add stock: ";
-    std::cin >> productID;
-    std::cout << "Enter quantity to add: ";
-    std::cin >> addedQuantity;
+    listStock(stock, totalProducts, nullptr, totalProducts);
+    int productID = usrInput<int>("\nEnter product ID to add stock: ",true);
+    int addedQuantity = usrInput<int>("Enter quantity to add: ",true);
 
     int index = productID * 4;
     int currentQuantity = std::stoi(stock[index + E_QT]);
