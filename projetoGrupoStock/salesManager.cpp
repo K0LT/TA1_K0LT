@@ -3,110 +3,111 @@
 #include "salesManager.h"
 #include "product.h"
 #include "stock.h"
+#include "enums.h"
 
-// Iterates through the string and swaps lowercase chars for uppercase
-void upperCase(std::string &str)
-{
-    for (int i = 0; i < str.size(); i++)
-    {
-        str[i] = std::toupper(str[i]);
+constexpr double TAX_RATE = 0.27; // Define tax as a constant
+
+void upperCase(std::string &str) {
+    for (char &c : str) {
+        c = std::toupper(static_cast<unsigned char>(c));
     }
 }
 
 // Collects user input to determine what products to sell
-std::string** sellProducts(std::string **stock, int &ID, int &clientNumber)
-{
-    std::string** addedProducts = new std::string*[100];
+std::string** sellProducts(std::string **stock, int &ID, int &clientNumber) {
 
-    int productCounter{0};
+    std::string** addedProducts = new std::string*[ID]; // Dynamically allocate based on ID
+    int productCounter = 0;
 
     std::cout << "\nPlease enter the client's number: ";
-    std::cin >> clientNumber;
+    while (!(std::cin >> clientNumber)) {
+        std::cin.clear();
+        std::cin.ignore(1000, '\n');
+        std::cout << "Invalid input. Enter a valid client number: ";
+    }
 
     bool selling = true;
-    do
-    {
-        bool correctInput = false;
+    while (selling) {
         std::string inputStr;
-        int inputQT{0};
-        int inputID{0};
+        int inputQT = 0, inputID = 0;
 
-        // Keeps the user in a loop until they enter a valid answer
-        while (!correctInput)
-        {
-            std::cout << "\nWould you like a list of available products?\n[YES] [N0]\n";
+        while (true) {
+            std::cout << "\nWould you like a list of available products? [YES] [NO]\n";
             std::cin >> inputStr;
             upperCase(inputStr);
-            (inputStr == "YES" || inputStr == "NO") ? correctInput = true : correctInput = false;
+            if (inputStr == "YES" || inputStr == "NO") break;
         }
 
-        if (inputStr == "YES")
-        {
+        if (inputStr == "YES") {
             listStock(stock);
         }
 
-        correctInput = false;
-        while (!correctInput)
-        {
+        while (true) {
             std::cout << "\nPlease enter a valid product ID: ";
-            std::cin >> inputID;
-
-            if (inputID > ID)
-            {
-                std::cout << "\nInvalid ID. Please enter a valid ID.";
-                continue;
-            }
-
-            (stock[inputID] == nullptr) ? correctInput = false : correctInput = true;
+            if (!(std::cin >> inputID) || inputID < 0 || inputID >= ID || stock[inputID] == nullptr) {
+                std::cin.clear();
+                std::cin.ignore(1000, '\n');
+                std::cout << "\nInvalid ID. Try again.";
+            } else break;
         }
 
-        listProduct(inputID,stock);
+        listProduct(inputID, stock);
 
-        // Reset our boolean, use a function for this in the future
-        correctInput = false;
-        while (!correctInput)
-        {
-            std::cout << "\nHow many of [" << stock[inputID][2] << "] would you like to add to your order?\n";
-            std::cin >> inputQT;
-
-            if (inputQT > stoi(stock[inputID][1]))
-            {
-                std::cout << "\nThere are only [" << stock[inputID][1] << "] of [" << stock[inputID][2] << "] remaining. You entered [" << inputQT << "].";
-            }
-            else correctInput = true;
-            removeQuantity(inputID,stock,inputQT);
+        while (true) {
+            std::cout << "\nHow many of [" << stock[inputID][E_NAME] << "] would you like to add? ";
+            if (!(std::cin >> inputQT) || inputQT <= 0 || inputQT > std::stoi(stock[inputID][E_QT])) {
+                std::cin.clear();
+                std::cin.ignore(1000, '\n');
+                std::cout << "\nInvalid quantity. Try again.";
+            } else break;
         }
-
-        std::cout << "\nAdded [" << inputQT << "] [" << stock[inputID][2] << "] to your order!\n";
+        removeQuantity(inputID, stock, inputQT);
 
         addedProducts[productCounter] = new std::string[2];
-        addedProducts[productCounter][0] = std::to_string(inputID);
-        addedProducts[productCounter][1] = std::to_string(inputQT);
+        addedProducts[productCounter][E_ID] = std::to_string(inputID);
+        addedProducts[productCounter][E_QT] = std::to_string(inputQT);
         productCounter++;
 
-        correctInput = false;
-        while (!correctInput)
-        {
-            std::cout << "\nWould you like to add more products to your order? [YES] [NO]\n";
+        while (true) {
+            std::cout << "\nWould you like to add more products? [YES] [NO]\n";
             std::cin >> inputStr;
             upperCase(inputStr);
-            (inputStr == "YES" || inputStr == "NO") ? correctInput = true : correctInput = false;
+            if (inputStr == "YES" || inputStr == "NO") break;
         }
-        (inputStr == "YES") ? selling = true : selling = false;
-    }while (selling);
+        selling = (inputStr == "YES");
+    }
+    addedProducts[productCounter] = nullptr; // Null terminate array for safety
     return addedProducts;
 }
 
-void printReceipt(std::string **addedProducts, std::string **stock, int &receiptNumber, int &clientNumber)
-{
-    int iterator{0};
-    std::cout << "\nPrinting receipt...\n";
+void printReceipt(std::string **addedProducts, std::string **stock, int &receiptNumber, int &clientNumber, const char* timePoint) {
+    double totalPrice = 0;
+    std::cout << "\nPrinting receipt...";
     std::cout << "\nReceipt number: " << receiptNumber++;
     std::cout << "\nClient number: " << clientNumber << std::endl;
-    do
-    {
-        std::cout << "\nProduct: [" << stock[std::stoi(addedProducts[iterator][0])][2] << "].\nQuantity: [" << addedProducts[iterator][1] << "].\n" << "\nPrice: [" << std::stoi(stock[std::stoi(addedProducts[iterator][0])][3]);
-        iterator++;
-    }while (addedProducts[iterator] != nullptr);
 
+    for (int i = 0; addedProducts[i] != nullptr; i++) {
+        int addedProductID = std::stoi(addedProducts[i][E_ID]);
+        int addedProductQT = std::stoi(addedProducts[i][E_QT]);
+        double beforeTax = addedProductQT * std::stod(stock[addedProductID][E_PRICE]);
+        double afterTax = beforeTax * (1 + TAX_RATE);
+        totalPrice += afterTax;
+
+        std::cout << "\nProduct: [" << stock[addedProductID][E_NAME] << "]\n";
+        std::cout << "Quantity: [" << addedProducts[i][E_QT] << "]";
+        std::cout << "\nPrice(before tax): [" << beforeTax << "]";
+        std::cout << "\nTax: " << (TAX_RATE * 100) << "%";
+        std::cout << "\nPrice(after tax): " << afterTax;
+    }
+
+    std::cout << "\nTotal: " << totalPrice;
+    std::cout << "\nDate: " << timePoint;
+}
+
+// Free dynamically allocated memory
+void freeAddedProducts(std::string **addedProducts) {
+    for (int i = 0; addedProducts[i] != nullptr; i++) {
+        delete[] addedProducts[i];
+    }
+    delete[] addedProducts;
 }

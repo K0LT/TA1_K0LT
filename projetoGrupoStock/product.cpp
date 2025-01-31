@@ -1,6 +1,7 @@
-#include "product.h"
 #include <string>
 #include <iostream>
+#include "product.h"
+#include "enums.h"
 
 void addProduct(int &ID, int quantity, std::string &name, float price, std::string **stock)
 {
@@ -15,38 +16,39 @@ void addProduct(int &ID, int quantity, std::string &name, float price, std::stri
             std::cout << "\n[ADDPRODUCT-DEBUG]: Found unused ID at " << i << ". Creating product with ID: " << i << " rather than " << ID;
             int tempID = i;
             stock[tempID] = new std::string[4];
-            stock[tempID][0] = std::to_string(tempID);
-            stock[tempID][1] = std::to_string(quantity);
-            stock[tempID][2] = name;
-            stock[tempID][3] = std::to_string(price);
+            stock[tempID][E_ID] = std::to_string(tempID);
+            stock[tempID][E_QT] = std::to_string(quantity);
+            stock[tempID][E_NAME] = name;
+            stock[tempID][E_PRICE] = std::to_string(price);
             break;
         }
     }
+
     stock[ID] = new std::string[4];
-    stock[ID][0] = std::to_string(ID);
-    stock[ID][1] = std::to_string(quantity);
-    stock[ID][2] = name;
-    stock[ID][3] = std::to_string(price);
+    stock[ID][E_ID] = std::to_string(ID);
+    stock[ID][E_QT] = std::to_string(quantity);
+    stock[ID][E_NAME] = name;
+    stock[ID][E_PRICE] = std::to_string(price);
     ID++;
 }
 
 void listProduct(int index, std::string **stock)
 {
-    std::cout << "\nProduct ID: "<< stock[index][0] << "\nQuantity: " << stock[index][1] << "\nName: " << stock[index][2] << "\nPrice(noTax): " << stock[index][3] << std::endl;
+    std::cout << "\nProduct ID: "<< stock[index][E_ID] << "\nQuantity: " << stock[index][E_QT] << "\nName: " << stock[index][E_NAME] << "\nPrice(noTax): " << stock[index][E_PRICE] << std::endl;
 }
 
 void addQuantity(int &ID, std::string **stock, int addedQuantity)
 {
-    int temp = std::stoi(stock[ID][1]);
+    int temp = std::stoi(stock[ID][E_QT]);
     temp += addedQuantity;
     stock[ID][1] = std::to_string(temp);
 }
 
 void removeQuantity(int& ID, std::string** stock, int removedQuantity)
 {
-    int temp = std::stoi(stock[ID][1]);
+    int temp = std::stoi(stock[ID][E_QT]);
     temp -= removedQuantity;
-    stock[ID][1] = std::to_string(temp);
+    stock[ID][E_ID] = std::to_string(temp);
 }
 
 // We store the address in a temp pointer, we set the stock index to nullptr and then delete the allocated array
