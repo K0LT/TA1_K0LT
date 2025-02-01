@@ -1,9 +1,10 @@
-// stock.h - Stock management functions
 #pragma once
 #include <string>
 
+// Simple enumeration to make the stock more readable, E_ID = 0 (default), E_QT = 1, etc.
 enum stockPositions { E_ID, E_QT, E_NAME, E_PRICE };
 
+// Function declarations, pairs with stock.cpp (definitions)
 std::string* createStock(int size);
 void initializeStock(std::string*& stock, int& ID, int& totalProducts, int& stockSize);
 void deleteStock(std::string* stock);
